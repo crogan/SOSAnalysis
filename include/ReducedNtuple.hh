@@ -17,120 +17,90 @@ private:
   void InitOutputTree();
   void FillOutputTree();
 
-  float m_weight;
-  int   m_NPV;
-  int   m_NPU; 
+  double m_MET;
+  double m_MET_phi;
 
-  bool  m_isA;
-  bool  m_isB;
-  bool  m_isC;
-  bool  m_isD;
+  double m_HT;
 
-  // AK8 candidate 4-vectors
-  float m_pT_top;
-  float m_eta_top;
-  float m_phi_top;
-  float m_mass_top;
-  float m_pT_higgs;
-  float m_eta_higgs;
-  float m_phi_higgs;
-  float m_mass_higgs;
+  int m_nEl;
+  int m_nMu;
+  int m_nBjet;
+  
+  double m_pT_1lep;
+  int m_id_1lep;
+  double m_pT_2lep;
+  int m_id_2lep;
+  double m_pT_3lep;
+  int m_id_3lep;
+  
+  // common variables for output tree
+  double m_weight;
 
-  float m_tau1_top;
-  float m_tau2_top;
-  float m_tau3_top;
-  float m_tau1_higgs;
-  float m_tau2_higgs;
-  float m_tau3_higgs;
+  bool m_Is_SF;
 
-  float m_mass_softdrop_top;
-  float m_mass_softdrop_higgs;
-  float m_mass_pruned_top;
-  float m_mass_pruned_higgs;
+  int m_NjS;
+  int m_NjISR;
+  
+  // compressed observables
+  // common to all trees
+  double m_PTISR_comb;
+  double m_PTCM_comb;
+  double m_RISR_comb;
+  double m_cosCM_comb;
+  double m_cosS_comb;
+  double m_MISR_comb;
+  double m_MS_comb;
+  double m_dphiCMI_comb;
+  double m_dphiSI_comb;
+  double m_dphiISRI_comb;
 
-  // subjet 4-vectors ("0" is leading CSV score from each)
-  float m_pT_top_sj0;
-  float m_eta_top_sj0;
-  float m_phi_top_sj0;
-  float m_mass_top_sj0;
-  float m_pT_top_sj1;
-  float m_eta_top_sj1;
-  float m_phi_top_sj1;
-  float m_mass_top_sj1;
-  float m_pT_higgs_sj0;
-  float m_eta_higgs_sj0;
-  float m_phi_higgs_sj0;
-  float m_mass_higgs_sj0;
-  float m_pT_higgs_sj1;
-  float m_eta_higgs_sj1;
-  float m_phi_higgs_sj1;
-  float m_mass_higgs_sj1;
+  double m_PTISR_fix;
+  double m_PTCM_fix;
+  double m_RISR_fix;
+  double m_cosCM_fix;
+  double m_cosS_fix;
+  double m_MISR_fix;
+  double m_MS_fix;
+  double m_dphiCMI_fix;
+  double m_dphiSI_fix;
+  double m_dphiISRI_fix;
 
-  float m_csv_top_sj0;
-  float m_csv_top_sj1;
-  float m_csv_higgs_sj0;
-  float m_csv_higgs_sj1;
+  double m_MZ;
+  double m_cosZ;
 
-  // extra-jet 4-vectors
-  vector<float> m_pT_extrajet;
-  vector<float> m_eta_extrajet;
-  vector<float> m_phi_extrajet;
-  vector<float> m_mass_extrajet;
-  vector<float> m_CSV_extrajet;
+
+  // RestFrames frames and friends
+
+  // combinatoric (transverse) tree
+  // for jet assignment
+  LabRecoFrame*        LAB_comb;
+  DecayRecoFrame*      CM_comb;
+  DecayRecoFrame*      S_comb;
+  VisibleRecoFrame*    ISR_comb;
+  VisibleRecoFrame*    J_comb;
+  VisibleRecoFrame*    L_comb;
+  InvisibleRecoFrame*  I_comb;
+  InvisibleGroup*      INV_comb;
+  SetMassInvJigsaw*    InvMass_comb;
+  CombinatoricGroup*   JETS_comb;
+  MinMassesCombJigsaw* SplitJETS_comb;
+
+  // OS 2L tree w/ fixed jet assign.
+  LabRecoFrame*        LAB_fix;
+  DecayRecoFrame*      CM_fix;
+  DecayRecoFrame*      S_fix;
+  VisibleRecoFrame*    ISR_fix;
+
+  DecayRecoFrame*      L_fix;  
+  VisibleRecoFrame*    L1_fix;
+  VisibleRecoFrame*    L2_fix;
  
-  float m_M_extra;
-  int m_N_extra;
-  float m_pT_q;
-  float m_eta_q;
-  float m_phi_q;
-  float m_mass_q;
+  InvisibleRecoFrame*  I_fix;
 
-  float m_EtaMax;
+  InvisibleGroup*       INV_fix;
+  SetMassInvJigsaw*     InvMass_fix;
+  SetRapidityInvJigsaw* InvRapidity_fix;
 
-  // pre-calc variables
-  float m_M_Tp;
-  float m_pT_Tp;
-
-  float m_cosTp; // wrt T
-  float m_cosH;
-  float m_cosT;
-  float m_cosTq;
-  float m_dphiTH;
-  float m_dphiTpH;
-  float m_dphiTpT;
-
-  float m_T;
-  float m_Tm;
-  float m_TT;
-  float m_T_CM;
-  float m_Tm_CM;
-  float m_TT_CM;
-
-  // leptons
-  vector<float> m_pT_ele_clean;
-  vector<float> m_eta_ele_clean;
-  vector<float> m_phi_ele_clean;
-  vector<float> m_E_ele_clean;
-
-  vector<float> m_pT_mu_clean;
-  vector<float> m_eta_mu_clean;
-  vector<float> m_phi_mu_clean;
-  vector<float> m_E_mu_clean;
-
-  bool m_SignalTrigger;
-
-  int m_N_SignalTriggerList;
-  vector<string> m_SignalTriggerList;
-
-  // RestFrames stuff
-  LabRecoFrame*       LAB;
-  DecayRecoFrame*     Tp;
-  DecayRecoFrame*     T;
-  DecayRecoFrame*     H;
-  VisibleRecoFrame*   T0;
-  VisibleRecoFrame*   T1;
-  VisibleRecoFrame*   H0;
-  VisibleRecoFrame*   H1;
 
 };
 

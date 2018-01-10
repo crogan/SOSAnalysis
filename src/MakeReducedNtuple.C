@@ -121,13 +121,13 @@ int main(int argc, char* argv[]) {
     if(DO_TREE)
       chain = (TChain*) new TChain(TreeName);
     else
-      chain = (TChain*) new TChain("anaCHS/tree");
+      chain = (TChain*) new TChain("tree");
     chain->Add(filenames[i].c_str());
     cout << "   Running file " << filenames[i] << endl;
     if(DO_TREE)
       cout << "   Running tree " << TreeName << " " << chain->GetEntries() << endl;
     else
-      cout << "   Running tree " << "anaCHS/tree" << " " << chain->GetEntries() << endl;
+      cout << "   Running tree " << "tree" << " " << chain->GetEntries() << endl;
     ReducedNtuple* ntuple = new ReducedNtuple(chain);
     
     // pass filename label
@@ -138,10 +138,15 @@ int main(int argc, char* argv[]) {
       label.erase(0, label.find("/")+1);
     ntuple->AddLabel(label);
 
+    if(label.find("_treeProducerSusyMultilepton_tree") != string::npos)
+      label.erase(label.find("_treeProducerSusyMultilepton_tree"));
+
+    cout << label << " label " << endl;
+    
     //Get event count
     TH1D* hevt = nullptr;
     TFile* f = new TFile(filenames[i].c_str(),"READ");
-    hevt = (TH1D*) f->Get("allEvents/hEventCount_wt");
+    hevt = (TH1D*) f->Get("SumGenWeights");
     if(hevt){
       ntuple->AddNevent( hevt->Integral() );
       delete hevt;

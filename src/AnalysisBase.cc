@@ -14,7 +14,7 @@ AnalysisBase<Base>::AnalysisBase(TTree* tree)
 {
   m_CurrentFile = -1;
   m_DSID = -1;
-  m_Nevent = 0.;
+  m_Nevent = 1.;
   m_Label  = "";
   m_XSEC = 0.;
   InitXSECmap();
@@ -118,6 +118,10 @@ int AnalysisBase<Base>::GetJets(vector<TLorentzVector>& JETs, double pt_cut, dou
 }
 
 template <class Base>
+void AnalysisBase<Base>::GetLeptons(vector<TLorentzVector>& LEPs, vector<int>& IDs,
+				    double pt_cut, double eta_cut) {}
+
+template <class Base>
 int AnalysisBase<Base>::GetLargeRJets(vector<TLorentzVector>& JETs, double pt_cut, double eta_cut) {
   return 0.;
 }
@@ -217,44 +221,74 @@ void AnalysisBase<Base>::MomTensorCalc(vector<TLorentzVector>& input, vector<dou
 
 
 
-// template <>
-// double AnalysisBase<InputTreeBase>::GetEventWeight(){
-//   if(m_Nevent > 0.){
-//     double ret = 1000.*m_XSEC*SelectedEvent_EvtWeight*SelectedEvent_EvtWtPV/m_Nevent;
-//     return ret;
-//   }
-//   else
-//     return 0.;
-// }
+template <>
+double AnalysisBase<SOSInputTree>::GetEventWeight(){
+  if(m_Nevent > 1.){
+    double ret = 1000.*xsec*genWeight/m_Nevent;
+    return ret;
+  }
+  else
+    return 1.;
+}
 
-// template <>
-// TVector3 AnalysisBase<ZeroLeptonBase>::GetMET(){
-//   TVector3 met;
-//   met.SetPtEtaPhi(NTVars_met,0.0,NTVars_metPhi);
-//   return met;
-// }
+template <>
+TVector3 AnalysisBase<SOSInputTree>::GetMET(){
+  TVector3 met;
+  met.SetPtEtaPhi(met_pt,0.0,met_phi);
+  return met;
+}
 
-// template <>
-// int AnalysisBase<InputTreeBase>::GetJets(vector<TLorentzVector>& JETs, double pt_cut, double eta_cut){
+template <>
+int AnalysisBase<SOSInputTree>::GetJets(vector<TLorentzVector>& JETs, double pt_cut, double eta_cut){
 
-//   int Njet = ptAK4->size();
-//   for(int i = 0; i < Njet; i++){
-//     if((ptAK4->at(i) >= pt_cut) && (fabs(etaAK4->at(i)) < eta_cut || eta_cut < 0)){
-//       TLorentzVector JET;
-//       float mass = MAK4->at(i);
-//       if(std::isnan(mass))
-// 	mass = 0;
-//       if(std::isinf(mass))
-// 	mass = 0;
-//       if(mass < 0.)
-// 	mass = 0.;
-//       JET.SetPtEtaPhiM( ptAK4->at(i), etaAK4->at(i), phiAK4->at(i), mass );
-//       JETs.push_back(JET);
-//     }
-//   }
-//   return 0.;
+  int Njet = nJet;
+  for(int i = 0; i < nJet && i < 30; i++){
+    if(Jet_pt[i] >= pt_cut && (fabs(Jet_eta[i]) < eta_cut || eta_cut < 0)){
+      TLorentzVector JET;
+      float mass = Jet_mass[i];
+      if(std::isnan(mass))
+	mass = 0;
+      if(std::isinf(mass))
+	mass = 0;
+      if(mass < 0.)
+	mass = 0.;
+      JET.SetPtEtaPhiM( Jet_pt[i], Jet_eta[i], Jet_phi[i], mass );
+      JETs.push_back(JET);
+    }
+  }
+  return 0.;
 
-// }
+}
+
+template <>
+void AnalysisBase<SOSInputTree>::GetLeptons(vector<TLorentzVector>& LEPs, vector<int>& IDs,
+					    double pt_cut, double eta_cut) {
+  LEPs.clear();
+  IDs.clear();
+  
+  int Nlep = nLepGood;
+  for(int i = 0; i < Nlep && i < 20; i++){
+    
+    if(abs(LepGood_pdgId[i]) == 13){ // ele - only muons for now
+      continue;
+    }
+
+    if(abs(LepGood_pdgId[i]) == 15){ // mu
+      // if(LepGood_relIso03[i] > 0.5) // some iso
+      // 	continue;
+      // if(LepGood_softMuonId[i] <= 0.)
+      // 	continue;
+    }
+    
+    TLorentzVector LEP;
+    LEP.SetPtEtaPhiM(LepGood_pt[i], LepGood_eta[i],
+		    LepGood_phi[i], LepGood_mass[i]);
+    if((LEP.Pt() >= pt_cut) && (fabs(LEP.Eta()) < eta_cut || eta_cut < 0)){
+      LEPs.push_back(LEP);
+      IDs.push_back(LepGood_pdgId[i]);
+    }
+  }
+}
 
 // template<>
 // int AnalysisBase<InputTreeBase>::GetLargeRJets(vector<TLorentzVector>& JETs, double pt_cut, double eta_cut){
