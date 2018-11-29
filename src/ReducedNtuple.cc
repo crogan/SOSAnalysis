@@ -46,6 +46,61 @@ ReducedNtuple::ReducedNtuple(TTree* tree)
   
   LAB_fix->InitializeTree();
 
+  // 2L+NJ tree (Z->ll + W/Z->qq)
+  LAB_2LNJ = new LabRecoFrame("LAB_2LNJ","LAB");
+  
+  S_2LNJ   = new DecayRecoFrame("S_2LNJ","S");
+  
+  Ca_2LNJ  = new DecayRecoFrame("Ca_2LNJ","C_{a}");  
+  Z_2LNJ   = new DecayRecoFrame("Z_2LNJ","Z");
+  L1_2LNJ  = new VisibleRecoFrame("L1_2LNJ","#it{l}_{1}");
+  L2_2LNJ  = new VisibleRecoFrame("L2_2LNJ","#it{l}_{2}");
+  Cb_2LNJ  = new DecayRecoFrame("Cb_2LNJ","C_{b}");
+  JSA_2LNJ = new SelfAssemblingRecoFrame("JSA_2L2J", "J");
+  J_2LNJ   = new VisibleRecoFrame("J_2L2J","Jets");
+  Ia_2LNJ  = new InvisibleRecoFrame("Ia_2LNJ","I_{a}");
+  Ib_2LNJ  = new InvisibleRecoFrame("Ib_2LNJ","I_{b}");
+
+  LAB_2LNJ->SetChildFrame(*S_2LNJ);
+  S_2LNJ->AddChildFrame(*Ca_2LNJ);
+  S_2LNJ->AddChildFrame(*Cb_2LNJ);
+  Ca_2LNJ->AddChildFrame(*Z_2LNJ);
+  Ca_2LNJ->AddChildFrame(*Ia_2LNJ);
+  Cb_2LNJ->AddChildFrame(*JSA_2LNJ);
+  Cb_2LNJ->AddChildFrame(*Ib_2LNJ);
+  Z_2LNJ->AddChildFrame(*L1_2LNJ);
+  Z_2LNJ->AddChildFrame(*L2_2LNJ);
+  JSA_2LNJ->AddChildFrame(*J_2LNJ);
+
+  LAB_2LNJ->InitializeTree();
+
+  // 2L+1L tree (Z->ll + Z/W->l)
+  LAB_2L1L = new LabRecoFrame("LAB_2L1L","LAB");
+ 
+  S_2L1L   = new DecayRecoFrame("S_2L1L","S");
+  
+  Ca_2L1L  = new DecayRecoFrame("Ca_2L1L","C_{a}");
+  Z_2L1L   = new DecayRecoFrame("Z_2L1L","Z");  
+  L1_2L1L  = new VisibleRecoFrame("L1_2L1L","#it{l}_{1}");
+  L2_2L1L  = new VisibleRecoFrame("L2_2L1L","#it{l}_{2}");
+  Cb_2L1L  = new DecayRecoFrame("Cb_2L1L","C_{b}");  
+  Lb_2L1L  = new VisibleRecoFrame("Lb_2L1L","#it{l}_{b}");
+  Ia_2L1L  = new InvisibleRecoFrame("Ia_2L1L","I_{a}");
+  Ib_2L1L  = new InvisibleRecoFrame("Ia_2L1L","I_{b}");
+
+  LAB_2L1L->SetChildFrame(*S_2L1L);
+ 
+  S_2L1L->AddChildFrame(*Ca_2L1L);
+  S_2L1L->AddChildFrame(*Cb_2L1L);
+  Ca_2L1L->AddChildFrame(*Z_2L1L);
+  Ca_2L1L->AddChildFrame(*Ia_2L1L);
+  Z_2L1L->AddChildFrame(*L1_2L1L);
+  Z_2L1L->AddChildFrame(*L2_2L1L);
+  Cb_2L1L->AddChildFrame(*Lb_2L1L);
+  Cb_2L1L->AddChildFrame(*Ib_2L1L);
+
+  LAB_2L1L->InitializeTree(); 
+
    ////////////// Jigsaw rules set-up /////////////////
 
   // combinatoric (transverse) tree
@@ -86,6 +141,52 @@ ReducedNtuple::ReducedNtuple(TTree* tree)
   if(!LAB_fix->InitializeAnalysis()){
     cout << "Problem initializing \"fix\" analysis" << endl;
   }
+
+  // 2L+NJ tree (Z->ll + W/Z->qq)
+  INV_2LNJ = new InvisibleGroup("INV_2LNJ","Invisible System");
+  INV_2LNJ->AddFrame(*Ia_2LNJ);
+  INV_2LNJ->AddFrame(*Ib_2LNJ);
+  
+  InvMass_2LNJ = new SetMassInvJigsaw("InvMass_2LNJ", "Invisible system mass Jigsaw");
+  INV_2LNJ->AddJigsaw(*InvMass_2LNJ);
+  InvRapidity_2LNJ = new SetRapidityInvJigsaw("InvRapidity_2LNJ", "Set inv. system rapidity");
+  INV_2LNJ->AddJigsaw(*InvRapidity_2LNJ);
+  InvRapidity_2LNJ->AddVisibleFrames(S_2LNJ->GetListVisibleFrames());
+  SplitINV_2LNJ = new ContraBoostInvJigsaw("SplitINV_2LNJ", "INV -> I_{a}+ I_{b} jigsaw");
+  INV_2LNJ->AddJigsaw(*SplitINV_2LNJ);
+  SplitINV_2LNJ->AddVisibleFrames(Ca_2LNJ->GetListVisibleFrames(), 0);
+  SplitINV_2LNJ->AddVisibleFrames(Cb_2LNJ->GetListVisibleFrames(), 1);
+  SplitINV_2LNJ->AddInvisibleFrame(*Ia_2LNJ, 0);
+  SplitINV_2LNJ->AddInvisibleFrame(*Ib_2LNJ, 1);
+  
+  JETS_2LNJ = new CombinatoricGroup("JETS_comb","Jets System");
+  JETS_2LNJ->AddFrame(*J_2LNJ);
+  JETS_2LNJ->SetNElementsForFrame(*J_2LNJ, 0);
+
+  if(!LAB_2LNJ->InitializeAnalysis()){
+    cout << "Problem initializing \"2LNJ\" analysis" << endl;
+  }
+
+  // 2L+1L tree (Z->ll + Z/W->l)
+  INV_2L1L = new InvisibleGroup("INV_2L1L","Invisible System");
+  INV_2L1L->AddFrame(*Ia_2L1L);
+  INV_2L1L->AddFrame(*Ib_2L1L);
+  
+  InvMass_2L1L = new SetMassInvJigsaw("InvMass_2L1L", "Invisible system mass Jigsaw");
+  INV_2L1L->AddJigsaw(*InvMass_2L1L);
+  InvRapidity_2L1L = new SetRapidityInvJigsaw("InvRapidity_2L1L", "Set inv. system rapidity");
+  INV_2L1L->AddJigsaw(*InvRapidity_2L1L);
+  InvRapidity_2L1L->AddVisibleFrames(S_2L1L->GetListVisibleFrames());
+  SplitINV_2L1L = new ContraBoostInvJigsaw("SplitINV_2L1L", "INV -> I_{a}+ I_{b} jigsaw");
+  INV_2L1L->AddJigsaw(*SplitINV_2L1L);
+  SplitINV_2L1L->AddVisibleFrames(Ca_2L1L->GetListVisibleFrames(), 0);
+  SplitINV_2L1L->AddVisibleFrames(Cb_2L1L->GetListVisibleFrames(), 1);
+  SplitINV_2L1L->AddInvisibleFrame(*Ia_2L1L, 0);
+  SplitINV_2L1L->AddInvisibleFrame(*Ib_2L1L, 1);
+
+  if(!LAB_2L1L->InitializeAnalysis()){
+    cout << "Problem initializing \"2L1L\" analysis" << endl;
+  }
 }
 
 ReducedNtuple::~ReducedNtuple() {
@@ -118,6 +219,45 @@ ReducedNtuple::~ReducedNtuple() {
   delete INV_fix;
   delete InvMass_fix;
   delete InvRapidity_fix;
+
+  // 2L+NJ tree (Z->ll + W/Z->qq)
+  delete LAB_2LNJ;
+ 
+  delete S_2LNJ;
+ 
+  delete Ca_2LNJ;  
+  delete Z_2LNJ;
+  delete L1_2LNJ;
+  delete L2_2LNJ;
+  delete Cb_2LNJ;
+  delete JSA_2LNJ;
+  delete J_2LNJ;
+  delete Ia_2LNJ;
+  delete Ib_2LNJ;
+  delete INV_2LNJ;
+  delete InvMass_2LNJ;
+  delete InvRapidity_2LNJ;
+  delete SplitINV_2LNJ;
+  delete JETS_2LNJ;
+
+  // 2L+1L tree (Z->ll + Z/W->l)
+  delete LAB_2L1L;
+  
+  delete S_2L1L;
+  
+  delete Ca_2L1L;
+  delete Z_2L1L;  
+  delete L1_2L1L;
+  delete L2_2L1L;
+  delete Cb_2L1L;  
+  delete Lb_2L1L;
+  delete Ia_2L1L;
+  delete Ib_2L1L;
+  delete INV_2L1L;
+  delete InvMass_2L1L;
+  delete InvRapidity_2L1L;
+  delete SplitINV_2L1L;
+  
 }
 
 void ReducedNtuple::InitOutputTree(){
@@ -149,6 +289,7 @@ void ReducedNtuple::InitOutputTree(){
   m_Tree->Branch("pT_3lep", &m_pT_3lep);
   m_Tree->Branch("id_3lep", &m_id_3lep);
 
+  m_Tree->Branch("Nj", &m_Nj);
   m_Tree->Branch("NjS", &m_NjS);
   m_Tree->Branch("NjISR", &m_NjISR);
 
@@ -177,6 +318,24 @@ void ReducedNtuple::InitOutputTree(){
   m_Tree->Branch("MZ", &m_MZ);
   m_Tree->Branch("cosZ", &m_cosZ);
 
+  // which tree are we using for event?
+ 
+  m_Tree->Branch("Is_2LNJ", &m_Is_2LNJ);
+  m_Tree->Branch("Is_2L1L", &m_Is_2L1L);
+  
+  m_Tree->Branch("HN2S", &m_HN2S);
+  m_Tree->Branch("HN2SR", &m_HN2SR);
+  m_Tree->Branch("H11S", &m_H11S);
+  m_Tree->Branch("HN1Ca", &m_HN1Ca);
+  m_Tree->Branch("HN1Cb", &m_HN1Cb);
+  m_Tree->Branch("H11Ca", &m_H11Ca);
+  m_Tree->Branch("H11Cb", &m_H11Cb);
+  m_Tree->Branch("cosC", &m_cosC);
+
+  m_Tree->Branch("MZ", &m_MZ);
+  m_Tree->Branch("MJ", &m_MJ);
+  m_Tree->Branch("cosZ", &m_cosZ);
+  m_Tree->Branch("cosJ", &m_cosJ);
 }
 
 void ReducedNtuple::FillOutputTree(){
@@ -184,25 +343,51 @@ void ReducedNtuple::FillOutputTree(){
   m_weight = GetEventWeight();
 
   vector<TLorentzVector> Jets; 
-  GetJets(Jets, 25., 2.4); 
+  GetJets(Jets, 20., 2.4); 
   
-  // need at least one jet to play
-  if(Jets.size() < 1) 
-    return; 
+  // // need at least one jet to play
+  // if(Jets.size() < 1) 
+  //   return; 
+
+  m_Nj = Jets.size();
   
   TVector3 ETMiss = GetMET();
 
-  if(ETMiss.Mag() < 125.)
+  if(ETMiss.Mag() < 100.)
     return;
       
   vector<TLorentzVector> Leptons;
   vector<int> LepIDs;
   GetLeptons(Leptons, LepIDs, 3.5, 2.4);
+
+  // figure out which tree to use
   
-  if(Leptons.size() != 2) // exactly 2 OS muons for now
+  m_Is_2LNJ = false;
+  m_Is_2L1L = false;
+  
+  
+  if(Leptons.size() < 2) // at least 2 muons for now
     return;
 
-  if(LepIDs[0]+LepIDs[1] != 0) // OS
+  if(Leptons.size() == 3){
+    // at least 1 OS/SF pair
+    if(LepIDs[0]+LepIDs[1] == 0 ||
+       LepIDs[0]+LepIDs[2] == 0 ||
+       LepIDs[1]+LepIDs[2] == 0){
+      m_Is_2L1L = true;
+    }
+  }
+
+  if(Leptons.size() == 2){
+    // SS and/or OF leptons
+    if(LepIDs[0]+LepIDs[1] == 0){
+      if(Jets.size() >= 1){
+	m_Is_2LNJ = true;
+      }
+    }
+  }
+
+  if(!m_Is_2LNJ && !m_Is_2L1L)
     return;
 
   if(Leptons[0].Pt() < 5. && Leptons[1].Pt() < 5.) // lead muon greater than 5 GeV in Pt
@@ -224,10 +409,146 @@ void ReducedNtuple::FillOutputTree(){
   
   m_pT_2lep = Leptons[1].Pt();
   m_id_2lep = LepIDs[1];
- 
-  m_pT_3lep = 0.;
-  m_id_3lep = 0;
 
+  if(Leptons.size() > 2){
+    m_pT_3lep = Leptons[2].Pt();
+    m_id_3lep = Leptons[2].Pt();
+  } else {
+    m_pT_3lep = 0.;
+    m_id_3lep = 0;
+  }
+
+  // 2LNJ analysis
+  if(m_Is_2LNJ){
+    LAB_2LNJ->ClearEvent();
+
+    // put jets in their place
+    int NJ = Jets.size();
+    if(NJ == 1)
+      JETS_2LNJ->AddLabFrameFourVector(Jets[0]);
+    else {
+      int i1,i2;
+      double mdiff = 100000.;
+      for(int i = 0; i < NJ-1; i++){
+	for(int j = i+1; j < NJ; j++){
+	  double diff = fabs((Jets[i]+Jets[j]).M() - 80.);
+	  if(diff < mdiff){
+	    mdiff = diff;
+	    i1 = i;
+	    i2 = j;
+	  }
+	}
+      }
+      JETS_2LNJ->AddLabFrameFourVector(Jets[i1]);
+      JETS_2LNJ->AddLabFrameFourVector(Jets[i2]);
+      
+    }
+    
+    // put leptons in their place
+    L1_2LNJ->SetLabFrameFourVector(Leptons[0]);
+    L2_2LNJ->SetLabFrameFourVector(Leptons[1]);
+
+    INV_2LNJ->SetLabFrameThreeVector(ETMiss);
+
+    if(!LAB_2LNJ->AnalyzeEvent())
+      cout << "Something went wrong with \"2LNJ\" tree event analysis" << endl;
+  }
+
+  // 2L1L analysis
+  if(m_Is_2L1L){
+    LAB_2L1L->ClearEvent();
+    
+    // put leptons in their place
+    // find min mass SF/OS pair
+    pair<int,int> iSFOS;
+    double        mSFOS = -1.;
+    for(int i = 0; i < 2; i++){
+      for(int j = i+1; j < 3; j++){
+	if(LepIDs[i]+LepIDs[j] == 0){
+	  if(mSFOS < 0. ||
+	     (Leptons[i]+Leptons[j]).M() < mSFOS){
+	    mSFOS = (Leptons[i]+Leptons[j]).M();
+	    iSFOS.first  = i;
+	    iSFOS.second = j;
+	  }
+	}
+      }
+    }
+    
+    for(int i = 0; i < 3; i++){
+      if(i == iSFOS.first)
+	L1_2L1L->SetLabFrameFourVector(Leptons[i]);
+      if(i == iSFOS.second)
+	L2_2L1L->SetLabFrameFourVector(Leptons[i]);
+      if(i != iSFOS.first && i != iSFOS.second)
+	Lb_2L1L->SetLabFrameFourVector(Leptons[i]);
+    }
+
+    INV_2L1L->SetLabFrameThreeVector(ETMiss);
+    
+    if(!LAB_2L1L->AnalyzeEvent())
+      cout << "Something went wrong with \"2L1L\" tree event analysis" << endl;
+  }
+
+  m_HN2S = 0.;
+  m_HN2SR = 0.;
+  m_H11S = 0.;
+  m_HN1Ca = 0.;
+  m_HN1Cb = 0.;
+  m_H11Ca = 0.;
+  m_H11Cb = 0.;
+  m_cosC = 0.;
+
+  m_MZ = 0.;
+  m_MJ = 0.;
+  m_cosZ = 0.;
+  m_cosJ = 0.;
+
+  if(m_Is_2LNJ){
+
+    m_HN2S = Z_2LNJ->GetFourVector(*S_2LNJ).E() +
+      J_2LNJ->GetFourVector(*S_2LNJ).E() +
+      Ia_2LNJ->GetFourVector(*S_2LNJ).P() +
+      Ib_2LNJ->GetFourVector(*S_2LNJ).P();
+    m_H11S = 2.*(*Ia_2LNJ+*Ib_2LNJ).GetFourVector(*S_2LNJ).P();
+    m_HN1Ca = Z_2LNJ->GetFourVector(*Ca_2LNJ).E()+
+      Ia_2LNJ->GetFourVector(*Ca_2LNJ).P();
+    m_HN1Cb = J_2LNJ->GetFourVector(*Cb_2LNJ).E()+
+      Ib_2LNJ->GetFourVector(*Cb_2LNJ).P();
+    m_H11Ca = 2.*Ia_2LNJ->GetFourVector(*Ca_2LNJ).P();
+    m_H11Cb = 2.*Ib_2LNJ->GetFourVector(*Cb_2LNJ).P();
+    m_cosC  = Ca_2LNJ->GetCosDecayAngle();
+    
+    m_MZ = Z_2LNJ->GetMass();
+    m_MJ = J_2LNJ->GetMass();
+    m_cosZ = Z_2LNJ->GetCosDecayAngle();
+    if(Jets.size() > 1)
+      m_cosJ = JSA_2LNJ->GetCosDecayAngle();
+  }
+
+  if(m_Is_2L1L){
+    
+    m_HN2S = Z_2L1L->GetFourVector(*S_2L1L).E() +
+      Lb_2L1L->GetFourVector(*S_2L1L).E() +
+      Ia_2L1L->GetFourVector(*S_2L1L).P() +
+      Ib_2L1L->GetFourVector(*S_2L1L).P();
+    m_H11S = 2.*(*Ia_2L1L+*Ib_2L1L).GetFourVector(*S_2L1L).P();
+    m_HN1Ca = Z_2L1L->GetFourVector(*Ca_2L1L).E()+
+      Ia_2L1L->GetFourVector(*Ca_2L1L).P();
+    m_HN1Cb = Lb_2L1L->GetFourVector(*Cb_2L1L).E()+
+      Ib_2L1L->GetFourVector(*Cb_2L1L).P();
+    m_H11Ca = 2.*Ia_2L1L->GetFourVector(*Ca_2L1L).P();
+    m_H11Cb = 2.*Ib_2L1L->GetFourVector(*Cb_2L1L).P();
+    m_cosC  = Ca_2L1L->GetCosDecayAngle();
+    
+    m_MZ = Z_2L1L->GetMass();
+    m_cosZ = Z_2L1L->GetCosDecayAngle();
+  }
+
+  // ISR analysis
+  if(Jets.size() < 1)
+    return;
+  
   // first - analyze jet combinatoric tree
   // (regardless of later tree)
   LAB_comb->ClearEvent();
