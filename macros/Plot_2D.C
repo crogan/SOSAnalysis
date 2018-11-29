@@ -53,22 +53,22 @@ void Plot_2D(){
   // g_PlotTitle = "Z/#gamma* + jets";
   
 
-  // g_File.push_back("BKG/VVTo2L2Nu.root");
-  // g_File.push_back("BKG/WZTo1L1Nu2Q.root");
-  // g_File.push_back("BKG/WZTo1L3Nu.root");
-  // g_File.push_back("BKG/WZTo3LNu.root");
-  // g_PlotTitle = "VV + jets";
+  g_File.push_back("BKG/VVTo2L2Nu.root");
+  g_File.push_back("BKG/WZTo1L1Nu2Q.root");
+  g_File.push_back("BKG/WZTo1L3Nu.root");
+  g_File.push_back("BKG/WZTo3LNu.root");
+  g_PlotTitle = "VV + jets";
  
   
   // g_File.push_back("BKG/TTJets_DiLepton.root");
-  // g_PlotTitle = "t #bar{t} (2L)";
+  // g_PlotTitle = "t #bar{t} + jets";
   
 
   // g_File.push_back("SIG/TChiWZ_300_290.root");
-  // g_PlotTitle = "TChiWZ 300, 1";
+  // g_PlotTitle = "#tilde{#chi}_{2}^{0} #tilde{#chi}_{1}^{#pm} #rightarrow Z #tilde{#chi}_{1}^{0} W #tilde{#chi}_{1}^{0}; m_{#tilde{#chi}_{2}^{0},#tilde{#chi}_{1}^{#pm}} = 300, m_{#tilde{#chi}_{1}^{0}} = 290 GeV";
   
-  g_File.push_back("SIG/T2tt_400_370.root");
-  g_PlotTitle = "TChiWZ 300, 1";
+  // g_File.push_back("SIG/T2tt_400_390.root");
+  // g_PlotTitle = "TChiWZ 300, 1";
  
 
   int Nsample = g_File.size();
@@ -79,14 +79,14 @@ void Plot_2D(){
   string g_Label = "Region D";
 
 
-  g_Xname = "(P_{T}^{top}-p_{T}^{higgs})/M_{T'}";
-  g_Xmin = 0.;
+  g_Xname = "R_{ISR}";
+  g_Xmin = 0.2;
   g_Xmax = 1.2; 
   g_NX = 50;
-  g_Yname = "|#eta_{top}| - |#eta_{higgs}|";
-  g_Ymin = 0.;
-  g_Ymax = 1000.;
-  g_NY = 50.;
+  g_Yname = "p_{T}^{ISR} [GeV]";
+  g_Ymin = 50.;
+  g_Ymax = 900.;
+  g_NY = 50;
 
   TH2D* hist = new TH2D("hist","hist",
 			g_NX,g_Xmin,g_Xmax,
@@ -143,7 +143,7 @@ void Plot_2D(){
   TCanvas* can = (TCanvas*) new TCanvas("can","can",700.,600);
 
   can->SetLeftMargin(0.15);
-  can->SetRightMargin(0.22);
+  can->SetRightMargin(0.18);
   can->SetBottomMargin(0.15);
   can->SetGridx();
   can->SetGridy();
@@ -152,42 +152,42 @@ void Plot_2D(){
   can->cd();
   hist->Draw("COLZ");
   hist->GetXaxis()->CenterTitle();
-  hist->GetXaxis()->SetTitleFont(132);
+  hist->GetXaxis()->SetTitleFont(42);
   hist->GetXaxis()->SetTitleSize(0.06);
   hist->GetXaxis()->SetTitleOffset(1.06);
-  hist->GetXaxis()->SetLabelFont(132);
+  hist->GetXaxis()->SetLabelFont(42);
   hist->GetXaxis()->SetLabelSize(0.05);
   hist->GetXaxis()->SetTitle(g_Xname.c_str());
   hist->GetYaxis()->CenterTitle();
-  hist->GetYaxis()->SetTitleFont(132);
+  hist->GetYaxis()->SetTitleFont(42);
   hist->GetYaxis()->SetTitleSize(0.06);
   hist->GetYaxis()->SetTitleOffset(1.12);
-  hist->GetYaxis()->SetLabelFont(132);
+  hist->GetYaxis()->SetLabelFont(42);
   hist->GetYaxis()->SetLabelSize(0.05);
   hist->GetYaxis()->SetTitle(g_Yname.c_str());
   hist->GetZaxis()->CenterTitle();
-  hist->GetZaxis()->SetTitleFont(132);
+  hist->GetZaxis()->SetTitleFont(42);
   hist->GetZaxis()->SetTitleSize(0.06);
-  hist->GetZaxis()->SetTitleOffset(1.3);
-  hist->GetZaxis()->SetLabelFont(132);
+  hist->GetZaxis()->SetTitleOffset(1.);
+  hist->GetZaxis()->SetLabelFont(42);
   hist->GetZaxis()->SetLabelSize(0.05);
-  hist->GetZaxis()->SetTitle("N_{evt} / bin / fb^{-1}");
+  hist->GetZaxis()->SetTitle("a. u.");
   hist->GetZaxis()->SetRangeUser(0.9*hist->GetMinimum(0.0),1.1*hist->GetMaximum());
 
   TLatex l;
-  l.SetTextFont(132);
+  l.SetTextFont(42);
   l.SetNDC();
-  l.SetTextSize(0.05);
-  l.SetTextFont(132);
+  l.SetTextSize(0.035);
+  l.SetTextFont(42);
   // l.DrawLatex(0.17,0.855,g_PlotTitle.c_str());
-  l.DrawLatex(0.6,0.943,g_PlotTitle.c_str());
+  l.DrawLatex(0.41,0.943,g_PlotTitle.c_str());
   l.SetTextSize(0.04);
   l.SetTextFont(42);
-  l.DrawLatex(0.01,0.943,"#bf{#it{CMS}} Internal 13 TeV Simulation");
+  l.DrawLatex(0.01,0.943,"#bf{CMS} Simulation Preliminary");
 
-  l.SetTextSize(0.04);
-  l.SetTextFont(132);
-  l.DrawLatex(0.74,0.04,g_Label.c_str());
+  // l.SetTextSize(0.04);
+  // l.SetTextFont(132);
+  // l.DrawLatex(0.74,0.04,g_Label.c_str());
 
 
 }
